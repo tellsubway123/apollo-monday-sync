@@ -16,6 +16,8 @@ jobs:
         with:
           python-version: '3.11'
 
+      - run: pip install requests
+
       - run: python sync.py
         env:
           APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
