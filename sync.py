@@ -1,6 +1,19 @@
 import os
+import requests
 
-print("Apollo API Key Found:", bool(os.environ.get("APOLLO_API_KEY")))
-print("Monday API Token Found:", bool(os.environ.get("MONDAY_API_TOKEN")))
-print("Board ID: 18395580962")
-print("Monday User ID: 103624857")
+api_key = os.environ["APOLLO_API_KEY"]
+
+response = requests.post(
+    "https://api.apollo.io/api/v1/mixed_people/search",
+    headers={
+        "X-Api-Key": api_key,
+        "Content-Type": "application/json"
+    },
+    json={
+        "page": 1,
+        "per_page": 1
+    }
+)
+
+print("Status Code:", response.status_code)
+print(response.text[:500])
