@@ -1,13 +1,13 @@
 import os
-import json
 import requests
 
 MONDAY_TOKEN = os.environ["MONDAY_API_TOKEN"]
 
 query = """
-mutation ($board_id: ID!, $item_name: String!) {
+mutation ($board_id: ID!, $group_id: String!, $item_name: String!) {
   create_item(
     board_id: $board_id,
+    group_id: $group_id,
     item_name: $item_name
   ) {
     id
@@ -17,7 +17,8 @@ mutation ($board_id: ID!, $item_name: String!) {
 
 variables = {
     "board_id": 18395580962,
-    "item_name": "Apollo Sync Test"
+    "group_id": "group_rm582fdj",
+    "item_name": "Workspace Test"
 }
 
 response = requests.post(
