@@ -1,5 +1,6 @@
 import os
 import requests
+import json
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 
@@ -11,7 +12,7 @@ response = requests.post(
     },
     json={
         "page": 1,
-        "per_page": 5
+        "per_page": 1
     }
 )
 
@@ -19,5 +20,7 @@ print("Status:", response.status_code)
 
 data = response.json()
 
-for person in data.get("people", []):
-    print(person.keys())
+people = data.get("people", [])
+
+if people:
+    print(json.dumps(people[0], indent=2))
