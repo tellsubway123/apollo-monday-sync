@@ -15,11 +15,11 @@ response = requests.post(
     }
 )
 
-print("Status:", response.status_code)
-
 data = response.json()
 
 for person in data.get("people", []):
     first = person.get("first_name", "")
     last = person.get("last_name", "")
-    print(f"{first} {last}")
+    email = person.get("email", "")
+
+    print(f"{first} {last} | {email}")
