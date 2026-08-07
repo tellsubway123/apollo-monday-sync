@@ -4,7 +4,7 @@ import json
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 
-response = requests.post(
+search_response = requests.post(
     "https://api.apollo.io/api/v1/mixed_people/api_search",
     headers={
         "X-Api-Key": APOLLO_API_KEY,
@@ -16,11 +16,7 @@ response = requests.post(
     }
 )
 
-print("Status:", response.status_code)
+person = search_response.json()["people"][0]
 
-data = response.json()
-
-people = data.get("people", [])
-
-if people:
-    print(json.dumps(people[0], indent=2))
+print("PERSON ID:")
+print(person["id"])
