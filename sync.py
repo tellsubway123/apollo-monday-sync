@@ -10,9 +10,5 @@ response = requests.get(
     }
 )
 
-person = response.json()["person"]
-
-print("NAME:", person.get("name"))
-print("EMAIL:", person.get("email"))
-print("TITLE:", person.get("title"))
-print("COMPANY:", person.get("organization", {}).get("name"))
+print("Status:", response.status_code)
+print(response.text)
