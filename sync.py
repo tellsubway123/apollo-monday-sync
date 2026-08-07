@@ -1,5 +1,6 @@
 import os
 import requests
+import json
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 
@@ -10,5 +11,19 @@ response = requests.get(
     }
 )
 
-print("Status:", response.status_code)
-print(response.text[:3000])
+person = response.json()["person"]
+
+print("EMAILS:")
+print(person.get("emails"))
+
+print("\nPHONE:")
+print(person.get("phone"))
+
+print("\nMOBILE_PHONE:")
+print(person.get("mobile_phone"))
+
+print("\nDIRECT_DIAL:")
+print(person.get("direct_dial"))
+
+print("\nORGANIZATION:")
+print(person.get("organization", {}))
