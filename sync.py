@@ -1,1 +1,1 @@
-Enter file contents here
+print("Apollo Monday Sync")
