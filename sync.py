@@ -1,37 +1,25 @@
 import os
 import requests
 
-MONDAY_TOKEN = os.environ["MONDAY_API_TOKEN"]
-
-query = """
-mutation ($board_id: ID!, $group_id: String!, $item_name: String!) {
-  create_item(
-    board_id: $board_id,
-    group_id: $group_id,
-    item_name: $item_name
-  ) {
-    id
-  }
-}
-"""
-
-variables = {
-    "board_id": 18395580962,
-    "group_id": "group_mm582fdj",
-    "item_name": "Workspace Test"
-}
+APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 
 response = requests.post(
-    "https://api.monday.com/v2",
+    "https://api.apollo.io/api/v1/mixed_people/api_search",
     headers={
-        "Authorization": MONDAY_TOKEN,
+        "X-Api-Key": APOLLO_API_KEY,
         "Content-Type": "application/json"
     },
     json={
-        "query": query,
-        "variables": variables
+        "page": 1,
+        "per_page": 5
     }
 )
 
-print(response.status_code)
-print(response.text)
+print("Status:", response.status_code)
+
+data = response.json()
+
+for person in data.get("people", []):
+    first = person.get("first_name", "")
+    last = person.get("last_name", "")
+    print(f"{first} {last}")
