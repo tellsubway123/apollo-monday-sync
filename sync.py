@@ -15,5 +15,10 @@ response = requests.post(
     }
 )
 
-print("Status:", response.status_code)
-print(response.text[:4000])
+data = response.json()
+
+for contact in data.get("contacts", []):
+    print("NAME:", contact.get("name"))
+    print("ID:", contact.get("id"))
+    print("CREATED:", contact.get("created_at"))
+    print("---")
