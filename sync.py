@@ -1,19 +1,36 @@
 import os
+import json
 import requests
 
-api_key = os.environ["APOLLO_API_KEY"]
+MONDAY_TOKEN = os.environ["MONDAY_API_TOKEN"]
+
+query = """
+mutation ($board_id: ID!, $item_name: String!) {
+  create_item(
+    board_id: $board_id,
+    item_name: $item_name
+  ) {
+    id
+  }
+}
+"""
+
+variables = {
+    "board_id": 18395580962,
+    "item_name": "Apollo Sync Test"
+}
 
 response = requests.post(
-    "https://api.apollo.io/api/v1/mixed_people/api_search",
+    "https://api.monday.com/v2",
     headers={
-        "X-Api-Key": api_key,
+        "Authorization": MONDAY_TOKEN,
         "Content-Type": "application/json"
     },
     json={
-        "page": 1,
-        "per_page": 1
+        "query": query,
+        "variables": variables
     }
 )
 
-print("Status Code:", response.status_code)
-print(response.text[:1000])
+print(response.status_code)
+print(response.text)
