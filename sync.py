@@ -17,7 +17,7 @@ mutation ($board_id: ID!, $group_id: String!, $item_name: String!) {
 
 variables = {
     "board_id": 18395580962,
-    "group_id": "group_rm582fdj",
+    "group_id": "group_mm582fdj",
     "item_name": "Workspace Test"
 }
 
