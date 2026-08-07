@@ -13,17 +13,5 @@ response = requests.get(
 
 person = response.json()["person"]
 
-print("EMAILS:")
-print(person.get("emails"))
-
-print("\nPHONE:")
-print(person.get("phone"))
-
-print("\nMOBILE_PHONE:")
-print(person.get("mobile_phone"))
-
-print("\nDIRECT_DIAL:")
-print(person.get("direct_dial"))
-
-print("\nORGANIZATION:")
-print(person.get("organization", {}))
+for key in sorted(person.keys()):
+    print(key)
