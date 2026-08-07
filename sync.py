@@ -1,1 +1,4 @@
-print("Apollo Monday Sync")
+import os
+
+print("Apollo API Key Found:", bool(os.environ.get("APOLLO_API_KEY")))
+print("Monday API Token Found:", bool(os.environ.get("MONDAY_API_TOKEN")))
