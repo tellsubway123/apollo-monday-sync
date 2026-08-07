@@ -4,7 +4,7 @@ import requests
 api_key = os.environ["APOLLO_API_KEY"]
 
 response = requests.post(
-    "https://api.apollo.io/api/v1/mixed_people/search",
+    "https://api.apollo.io/api/v1/mixed_people/api_search",
     headers={
         "X-Api-Key": api_key,
         "Content-Type": "application/json"
@@ -16,4 +16,4 @@ response = requests.post(
 )
 
 print("Status Code:", response.status_code)
-print(response.text[:500])
+print(response.text[:1000])
