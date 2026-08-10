@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+from datetime import datetime
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 MONDAY_API_TOKEN = os.environ["MONDAY_API_TOKEN"]
@@ -15,10 +16,21 @@ EMAIL_COLUMN = "email_mm47srsd"
 MOBILE_COLUMN = "phone_mkzmcmj7"
 OWNER_COLUMN = "multiple_person_mm16b6ej"
 
+LAST_PROCESSED_FILE = "last_processed.txt"
+
 MONDAY_HEADERS = {
     "Authorization": MONDAY_API_TOKEN,
     "Content-Type": "application/json"
 }
+
+with open(LAST_PROCESSED_FILE, "r") as f:
+    last_processed = f.read().strip()
+
+last_processed_dt = datetime.fromisoformat(
+    last_processed.replace("Z", "+00:00")
+)
+
+print("LAST PROCESSED:", last_processed)
 
 apollo_response = requests.post(
     "https://api.apollo.io/api/v1/contacts/search",
@@ -36,11 +48,34 @@ apollo_response = requests.post(
 
 apollo_response.raise_for_status()
 
-contacts = apollo_response.json().get("contacts", [])
+all_contacts = apollo_response.json().get("contacts", [])
 
-print(f"Found {len(contacts)} contacts")
+contacts = []
+
+for contact in all_contacts:
+
+    created_at = contact.get("created_at")
+
+    if not created_at:
+        continue
+
+    created_dt = datetime.fromisoformat(
+        created_at.replace("Z", "+00:00")
+    )
+
+    if created_dt > last_processed_dt:
+        contacts.append(contact)
+
+print(f"NEW CONTACTS FOUND: {len(contacts)}")
+
+newest_timestamp = last_processed
 
 for contact in contacts:
+
+    created_at = contact.get("created_at")
+
+    if created_at and created_at > newest_timestamp:
+        newest_timestamp = created_at
 
     email = contact.get("email", "")
     name = contact.get("name", "")
@@ -49,10 +84,9 @@ for contact in contacts:
     mobile = contact.get("sanitized_phone", "")
 
     if not email:
-        print(f"Skipping {name} (no email)")
         continue
 
-    print(f"Processing {name}")
+    print(f"PROCESSING: {name}")
 
     search_query = f"""
     query {{
@@ -61,108 +95,4 @@ for contact in contacts:
           limit: 10
           query_params: {{
             rules: [{{
-              column_id: "{EMAIL_COLUMN}"
-              compare_value: ["{email}"]
-            }}]
-          }}
-        ) {{
-          items {{
-            id
-          }}
-        }}
-      }}
-    }}
-    """
-
-    search_response = requests.post(
-        "https://api.monday.com/v2",
-        headers=MONDAY_HEADERS,
-        json={"query": search_query}
-    )
-
-    search_data = search_response.json()
-
-    matches = (
-        search_data
-        .get("data", {})
-        .get("boards", [{}])[0]
-        .get("items_page", {})
-        .get("items", [])
-    )
-
-    column_values = {
-        ACCOUNT_COLUMN: company,
-        TITLE_COLUMN: title,
-        EMAIL_COLUMN: {
-            "email": email,
-            "text": email
-        },
-        MOBILE_COLUMN: {
-            "phone": mobile,
-            "countryShortName": "US"
-        },
-        OWNER_COLUMN: {
-            "personsAndTeams": [
-                {
-                    "id": OWNER_ID,
-                    "kind": "person"
-                }
-            ]
-        }
-    }
-
-    column_values_json = json.dumps(column_values)
-
-    if matches:
-
-        item_id = matches[0]["id"]
-
-        mutation = """
-        mutation ($board_id: ID!, $item_id: ID!, $column_values: JSON!) {
-          change_multiple_column_values(
-            board_id: $board_id,
-            item_id: $item_id,
-            column_values: $column_values
-          ) {
-            id
-          }
-        }
-        """
-
-        update_response = requests.post(
-            "https://api.monday.com/v2",
-            headers=MONDAY_HEADERS,
-            json={
-                "query": mutation,
-                "variables": {
-                    "board_id": BOARD_ID,
-                    "item_id": item_id,
-                    "column_values": column_values_json
-                }
-            }
-        )
-
-        print(f"UPDATED: {name}")
-        print(update_response.text)
-
-    else:
-
-        mutation = """
-        mutation (
-          $board_id: ID!,
-          $group_id: String!,
-          $item_name: String!,
-          $column_values: JSON!
-        ) {
-          create_item(
-            board_id: $board_id,
-            group_id: $group_id,
-            item_name: $item_name,
-            column_values: $column_values
-          ) {
-            id
-          }
-        }
-        """
-
-        create_response 
+              column_id:
