@@ -1,22 +1,13 @@
 import os
-import json
 import requests
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 MONDAY_API_TOKEN = os.environ["MONDAY_API_TOKEN"]
 
 BOARD_ID = 18395580962
-GROUP_ID = "group_mm582fdj"
-OWNER_ID = 103624857
-
 EMAIL_COLUMN = "email_mm47srsd"
-ACCOUNT_COLUMN = "text_mkzm1fns"
-TITLE_COLUMN = "text_mkzmfmqb"
-MOBILE_COLUMN = "phone_mkzmcmj7"
-CORPORATE_COLUMN = "phone_mm47z80h"
-OWNER_COLUMN = "multiple_person_mm16b6ej"
 
-response = requests.post(
+apollo_response = requests.post(
     "https://api.apollo.io/api/v1/contacts/search",
     headers={
         "X-Api-Key": APOLLO_API_KEY,
@@ -24,97 +15,64 @@ response = requests.post(
     },
     json={
         "page": 1,
-        "per_page": 10,
+        "per_page": 1,
         "sort_by_field": "created_at",
         "sort_ascending": False
     }
 )
 
-contacts = response.json().get("contacts", [])
+contacts = apollo_response.json().get("contacts", [])
 
-print(f"Found {len(contacts)} contacts")
+if not contacts:
+    print("No contacts found")
+    raise SystemExit()
 
-for contact in contacts:
+contact = contacts[0]
 
-    name = contact.get("name", "")
-    email = contact.get("email", "")
-    title = contact.get("title", "")
-    company = contact.get("organization_name", "")
-    mobile = contact.get("sanitized_phone", "")
+email = contact.get("email", "")
+name = contact.get("name", "")
 
-    print("Processing:", name)
+print("CONTACT:", name)
+print("EMAIL:", email)
 
-    monday_query = """
-    query ($board_id: ID!) {
-      boards(ids: [$board_id]) {
+search_query = """
+query ($board_id: ID!) {
+  boards(ids: [$board_id]) {
+    items_page(
+      limit: 10
+      query_params: {
+        rules: [{
+          column_id: "email_mm47srsd"
+          compare_value: [\"EMAIL_PLACEHOLDER\"]
+        }]
+      }
+    ) {
+      items {
         id
+        name
       }
     }
-    """
+  }
+}
+"""
 
-    monday_response = requests.post(
-        "https://api.monday.com/v2",
-        headers={
-            "Authorization": MONDAY_API_TOKEN,
-            "Content-Type": "application/json"
-        },
-        json={
-            "query": monday_query,
-            "variables": {
-                "board_id": BOARD_ID
-            }
-        }
-    )
+search_query = search_query.replace(
+    "EMAIL_PLACEHOLDER",
+    email
+)
 
-    column_values = {
-        ACCOUNT_COLUMN: company,
-        TITLE_COLUMN: title,
-        EMAIL_COLUMN: {
-            "email": email,
-            "text": email
-        },
-        MOBILE_COLUMN: {
-            "phone": mobile,
-            "countryShortName": "US"
-        },
-        OWNER_COLUMN: {
-            "personsAndTeams": [
-                {
-                    "id": OWNER_ID,
-                    "kind": "person"
-                }
-            ]
+response = requests.post(
+    "https://api.monday.com/v2",
+    headers={
+        "Authorization": MONDAY_API_TOKEN,
+        "Content-Type": "application/json"
+    },
+    json={
+        "query": search_query,
+        "variables": {
+            "board_id": BOARD_ID
         }
     }
+)
 
-    create_mutation = """
-    mutation ($board_id: ID!, $group_id: String!, $item_name: String!, $column_values: JSON!) {
-      create_item(
-        board_id: $board_id,
-        group_id: $group_id,
-        item_name: $item_name,
-        column_values: $column_values
-      ) {
-        id
-      }
-    }
-    """
-
-    result = requests.post(
-        "https://api.monday.com/v2",
-        headers={
-            "Authorization": MONDAY_API_TOKEN,
-            "Content-Type": "application/json"
-        },
-        json={
-            "query": create_mutation,
-            "variables": {
-                "board_id": BOARD_ID,
-                "group_id": GROUP_ID,
-                "item_name": name,
-                "column_values": json.dumps(column_values)
-            }
-        }
-    )
-
-    print(result.text)
+print(response.text)
