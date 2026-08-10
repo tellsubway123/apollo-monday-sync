@@ -1,13 +1,13 @@
 import os
+import json
 import requests
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 MONDAY_API_TOKEN = os.environ["MONDAY_API_TOKEN"]
 
 BOARD_ID = 18395580962
-EMAIL_COLUMN = "email_mm47srsd"
 
-apollo_response = requests.post(
+response = requests.post(
     "https://api.apollo.io/api/v1/contacts/search",
     headers={
         "X-Api-Key": APOLLO_API_KEY,
@@ -21,58 +21,53 @@ apollo_response = requests.post(
     }
 )
 
-contacts = apollo_response.json().get("contacts", [])
-
-if not contacts:
-    print("No contacts found")
-    raise SystemExit()
-
-contact = contacts[0]
+contact = response.json()["contacts"][0]
 
 email = contact.get("email", "")
 name = contact.get("name", "")
+title = contact.get("title", "")
+company = contact.get("organization_name", "")
 
-print("CONTACT:", name)
-print("EMAIL:", email)
-
-search_query = """
-query ($board_id: ID!) {
-  boards(ids: [$board_id]) {
+search_query = f"""
+query {{
+  boards(ids: [{BOARD_ID}]) {{
     items_page(
       limit: 10
-      query_params: {
-        rules: [{
+      query_params: {{
+        rules: [{{
           column_id: "email_mm47srsd"
-          compare_value: [\"EMAIL_PLACEHOLDER\"]
-        }]
-      }
-    ) {
-      items {
+          compare_value: ["{email}"]
+        }}]
+      }}
+    ) {{
+      items {{
         id
         name
-      }
-    }
-  }
-}
+      }}
+    }}
+  }}
+}}
 """
 
-search_query = search_query.replace(
-    "EMAIL_PLACEHOLDER",
-    email
-)
-
-response = requests.post(
+search_response = requests.post(
     "https://api.monday.com/v2",
     headers={
         "Authorization": MONDAY_API_TOKEN,
         "Content-Type": "application/json"
     },
-    json={
-        "query": search_query,
-        "variables": {
-            "board_id": BOARD_ID
-        }
-    }
+    json={"query": search_query}
 )
 
-print(response.text)
+search_data = search_response.json()
+
+items = (
+    search_data["data"]["boards"][0]
+    ["items_page"]["items"]
+)
+
+print("Matches Found:", len(items))
+
+if items:
+    print("Existing Monday Item:", items[0]["id"])
+else:
+    print("No matching item found")
