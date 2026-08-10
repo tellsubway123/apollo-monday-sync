@@ -1,5 +1,4 @@
 import os
-import json
 import requests
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
@@ -24,9 +23,6 @@ response = requests.post(
 contact = response.json()["contacts"][0]
 
 email = contact.get("email", "")
-name = contact.get("name", "")
-title = contact.get("title", "")
-company = contact.get("organization_name", "")
 
 search_query = f"""
 query {{
@@ -58,16 +54,13 @@ search_response = requests.post(
     json={"query": search_query}
 )
 
-search_data = search_response.json()
-
 items = (
-    search_data["data"]["boards"][0]
+    search_response.json()["data"]["boards"][0]
     ["items_page"]["items"]
 )
 
-print("Matches Found:", len(items))
+print("MATCHES:", len(items))
 
-if items:
-    print("Existing Monday Item:", items[0]["id"])
-else:
-    print("No matching item found")
+for item in items:
+    print("ITEM ID:", item["id"])
+    print("NAME:", item["name"])
