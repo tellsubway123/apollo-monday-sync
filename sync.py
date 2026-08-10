@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
@@ -24,9 +25,7 @@ contact = response.json()["contacts"][0]
 
 email = contact.get("email", "")
 name = contact.get("name", "")
-
-print("CONTACT:", name)
-print("EMAIL:", email)
+title = contact.get("title", "")
 
 search_query = f"""
 query {{
@@ -42,7 +41,6 @@ query {{
     ) {{
       items {{
         id
-        name
       }}
     }}
   }}
@@ -68,4 +66,24 @@ items = (
 print("MATCHES:", len(items))
 
 if items:
-    print("ITEM ID:", items[0]["id"])
+
+    item_id = items[0]["id"]
+
+    mutation = """
+    mutation ($board_id: ID!, $item_id: ID!, $column_values: JSON!) {
+      change_multiple_column_values(
+        board_id: $board_id,
+        item_id: $item_id,
+        column_values: $column_values
+      ) {
+        id
+      }
+    }
+    """
+
+    values = {
+        "text_mkzmfmqb": title
+    }
+
+    update_response = requests.post(
+        "https://api.monday.
