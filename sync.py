@@ -11,11 +11,16 @@ response = requests.post(
     },
     json={
         "page": 1,
-        "per_page": 10,
+        "per_page": 1,
         "sort_by_field": "created_at",
         "sort_ascending": False
     }
 )
 
-print("Status:", response.status_code)
-print(response.text[:4000])
+contact = response.json()["contacts"][0]
+
+print("NAME:", contact.get("name"))
+print("EMAIL:", contact.get("email"))
+print("TITLE:", contact.get("title"))
+print("COMPANY:", contact.get("organization_name"))
+print("MOBILE:", contact.get("sanitized_phone"))
