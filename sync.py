@@ -49,7 +49,7 @@ query {{
 }}
 """
 
-response = requests.post(
+search_response = requests.post(
     "https://api.monday.com/v2",
     headers={
         "Authorization": MONDAY_API_TOKEN,
@@ -60,4 +60,12 @@ response = requests.post(
     }
 )
 
-print(response.text)
+items = (
+    search_response.json()["data"]["boards"][0]
+    ["items_page"]["items"]
+)
+
+print("MATCHES:", len(items))
+
+if items:
+    print("ITEM ID:", items[0]["id"])
