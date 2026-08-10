@@ -2,6 +2,9 @@ import os
 import requests
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
+MONDAY_API_TOKEN = os.environ["MONDAY_API_TOKEN"]
+
+BOARD_ID = 18395580962
 
 response = requests.post(
     "https://api.apollo.io/api/v1/contacts/search",
@@ -19,5 +22,42 @@ response = requests.post(
 
 contact = response.json()["contacts"][0]
 
-print("NAME:", contact.get("name"))
-print("EMAIL:", contact.get("email"))
+email = contact.get("email", "")
+name = contact.get("name", "")
+
+print("CONTACT:", name)
+print("EMAIL:", email)
+
+search_query = f"""
+query {{
+  boards(ids: [{BOARD_ID}]) {{
+    items_page(
+      limit: 10
+      query_params: {{
+        rules: [{{
+          column_id: "email_mm47srsd"
+          compare_value: ["{email}"]
+        }}]
+      }}
+    ) {{
+      items {{
+        id
+        name
+      }}
+    }}
+  }}
+}}
+"""
+
+response = requests.post(
+    "https://api.monday.com/v2",
+    headers={
+        "Authorization": MONDAY_API_TOKEN,
+        "Content-Type": "application/json"
+    },
+    json={
+        "query": search_query
+    }
+)
+
+print(response.text)
