@@ -51,13 +51,13 @@ query {{
 
 response = requests.post(
     "https://api.monday.com/v2",
-    headers={{
+    headers={
         "Authorization": MONDAY_API_TOKEN,
         "Content-Type": "application/json"
-    }},
-    json={{
+    },
+    json={
         "query": search_query
-    }}
+    }
 )
 
 print(response.text)
