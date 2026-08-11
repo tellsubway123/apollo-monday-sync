@@ -25,7 +25,14 @@ response = requests.post(
 contacts = response.json().get("contacts", [])
 
 print("PROCESSED IDS:", len(processed_contacts))
-print("APOLLO CONTACTS:", len(contacts))
+print()
 
 for contact in contacts:
-    print(contact.get("id"), "|", contact.get("name"))
+
+    contact_id = contact.get("id")
+    name = contact.get("name")
+
+    if contact_id in processed_contacts:
+        print("SKIP  |", name)
+    else:
+        print("NEW   |", name)
