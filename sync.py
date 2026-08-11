@@ -11,16 +11,10 @@ response = requests.post(
         "Content-Type": "application/json"
     },
     json={
+        "q_keywords": "Julie Durose",
         "page": 1,
-        "per_page": 100
+        "per_page": 10
     }
 )
 
-data = response.json()
-
-print("PAGINATION:")
-print(json.dumps(data.get("pagination", {}), indent=2))
-
-print()
-print("NUM_FETCH_RESULT:")
-print(data.get("num_fetch_result"))
+print(json.dumps(response.json(), indent=2)[:15000])
