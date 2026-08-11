@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
@@ -17,10 +18,9 @@ response = requests.post(
 
 data = response.json()
 
-print("KEYS:")
-print(data.keys())
+print("PAGINATION:")
+print(json.dumps(data.get("pagination", {}), indent=2))
 
 print()
-
-print("TOTAL CONTACTS:")
-print(len(data.get("contacts", [])))
+print("NUM_FETCH_RESULT:")
+print(data.get("num_fetch_result"))
