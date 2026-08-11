@@ -73,7 +73,7 @@ if items:
 item_id = items[0]["id"]
 print("READY TO UPDATE:", item_id)
     values = {
-        "text_mkzmfmqb": "TEST UPDATE"
+        "text_mkzmfmqb"
     }
 
     print(values)
