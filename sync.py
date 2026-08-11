@@ -72,5 +72,32 @@ if items:
         "text_mkzmfmqb": title
     }
 
-    print("ITEM ID:", item_id)
-    print(values)
+    mutation = """
+    mutation ($board_id: ID!, $item_id: ID!, $column_values: JSON!) {
+      change_multiple_column_values(
+        board_id: $board_id,
+        item_id: $item_id,
+        column_values: $column_values
+      ) {
+        id
+      }
+    }
+    """
+
+    update_response = requests.post(
+        "https://api.monday.com/v2",
+        headers={
+            "Authorization": MONDAY_API_TOKEN,
+            "Content-Type": "application/json"
+        },
+        json={
+            "query": mutation,
+            "variables": {
+                "board_id": BOARD_ID,
+                "item_id": item_id,
+                "column_values": json.dumps(values)
+            }
+        }
+    )
+
+    print(update_response.text)
