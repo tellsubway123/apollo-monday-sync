@@ -1,6 +1,5 @@
 import os
 import requests
-import json
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 
@@ -11,13 +10,18 @@ response = requests.post(
         "Content-Type": "application/json"
     },
     json={
-        "q_keywords": "Julie Durose",
         "page": 1,
-        "per_page": 1
+        "per_page": 20
     }
 )
 
-contact = response.json()["contacts"][0]
+contacts = response.json().get("contacts", [])
 
-for key in sorted(contact.keys()):
-    print(key)
+for contact in contacts:
+    print(
+        contact.get("name"),
+        "| owner:",
+        contact.get("owner_id"),
+        "| creator:",
+        contact.get("creator_id")
+    )
