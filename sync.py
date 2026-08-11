@@ -11,18 +11,16 @@ response = requests.post(
     },
     json={
         "page": 1,
-        "per_page": 100,
-        "sort_by_field": "updated_at",
-        "sort_ascending": False
+        "per_page": 100
     }
 )
 
-contacts = response.json().get("contacts", [])
+data = response.json()
 
-for contact in contacts:
+print("KEYS:")
+print(data.keys())
 
-    print(
-        contact.get("name"),
-        "|",
-        contact.get("updated_at")
-    )
+print()
+
+print("TOTAL CONTACTS:")
+print(len(data.get("contacts", [])))
