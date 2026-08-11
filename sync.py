@@ -69,9 +69,10 @@ print("MATCHES:", len(items))
 
 if items:
     print("ITEM ID:", items[0]["id"])
-    
-item_id = items[0]["id"]
-print("READY TO UPDATE:", item_id)
+
+    item_id = items[0]["id"]
+    print("READY TO UPDATE:", item_id)
+
     values = {
         "text_mkzmfmqb": "TEST UPDATE"
     }
