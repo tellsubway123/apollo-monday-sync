@@ -17,4 +17,12 @@ response = requests.post(
     }
 )
 
-print(response.text[:15000])
+contacts = response.json().get("contacts", [])
+
+for contact in contacts:
+
+    print(
+        contact.get("name"),
+        "|",
+        contact.get("updated_at")
+    )
