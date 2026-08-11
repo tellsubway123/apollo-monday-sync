@@ -1,6 +1,6 @@
 import os
-import requests
 import json
+import requests
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 
@@ -16,10 +16,4 @@ response = requests.post(
     }
 )
 
-contacts = response.json().get("contacts", [])
-
-for contact in contacts:
-    name = str(contact.get("name", "")).lower()
-
-    if "julie" in name:
-        print(json.dumps(contact, indent=2))
+print(response.text[:15000])
