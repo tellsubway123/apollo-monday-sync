@@ -3,14 +3,18 @@ import requests
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 
-CONTACT_ID = "6a2ad3d528506200010ef488"
-
-response = requests.get(
-    f"https://api.apollo.io/api/v1/contacts/{CONTACT_ID}",
+response = requests.post(
+    "https://api.apollo.io/api/v1/contacts/search",
     headers={
-        "X-Api-Key": APOLLO_API_KEY
+        "X-Api-Key": APOLLO_API_KEY,
+        "Content-Type": "application/json"
+    },
+    json={
+        "page": 1,
+        "per_page": 100,
+        "sort_by_field": "updated_at",
+        "sort_ascending": False
     }
 )
 
-print("STATUS:", response.status_code)
-print(response.text)
+print(response.text[:15000])
