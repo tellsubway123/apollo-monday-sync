@@ -24,8 +24,7 @@ response = requests.post(
 
 contacts = response.json().get("contacts", [])
 
-print("PROCESSED IDS:", len(processed_contacts))
-print()
+new_count = 0
 
 for contact in contacts:
 
@@ -34,5 +33,16 @@ for contact in contacts:
 
     if contact_id in processed_contacts:
         print("SKIP  |", name)
+
     else:
         print("NEW   |", name)
+
+        processed_contacts.append(contact_id)
+        new_count += 1
+
+with open(PROCESSED_FILE, "w") as f:
+    json.dump(processed_contacts, f, indent=2)
+
+print()
+print("NEW CONTACTS:", new_count)
+print("TOTAL STORED IDS:", len(processed_contacts))
