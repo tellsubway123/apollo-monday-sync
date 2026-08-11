@@ -6,6 +6,7 @@ APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 MONDAY_API_TOKEN = os.environ["MONDAY_API_TOKEN"]
 
 BOARD_ID = 18395580962
+GROUP_ID = "group_mm582fdj"
 OWNER_ID = 103624857
 
 response = requests.post(
@@ -28,6 +29,7 @@ email = contact.get("email", "")
 title = contact.get("title", "")
 company = contact.get("organization_name", "")
 mobile = contact.get("sanitized_phone", "")
+name = contact.get("name", "")
 
 search_query = f"""
 query {{
@@ -67,30 +69,30 @@ items = (
 
 print("MATCHES:", len(items))
 
+values = {
+    "text_mkzmfmqb": title,
+    "text_mkzm1fns": company,
+    "email_mm47srsd": {
+        "email": email,
+        "text": email
+    },
+    "phone_mkzmcmj7": {
+        "phone": mobile,
+        "countryShortName": "US"
+    },
+    "multiple_person_mm16b6ej": {
+        "personsAndTeams": [
+            {
+                "id": OWNER_ID,
+                "kind": "person"
+            }
+        ]
+    }
+}
+
 if items:
 
     item_id = items[0]["id"]
-
-    values = {
-        "text_mkzmfmqb": title,
-        "text_mkzm1fns": company,
-        "email_mm47srsd": {
-            "email": email,
-            "text": email
-        },
-        "phone_mkzmcmj7": {
-            "phone": mobile,
-            "countryShortName": "US"
-        },
-        "multiple_person_mm16b6ej": {
-            "personsAndTeams": [
-                {
-                    "id": OWNER_ID,
-                    "kind": "person"
-                }
-            ]
-        }
-    }
 
     mutation = """
     mutation ($board_id: ID!, $item_id: ID!, $column_values: JSON!) {
@@ -120,4 +122,10 @@ if items:
         }
     )
 
+    print("UPDATED")
     print(update_response.text)
+
+else:
+
+    print("WOULD CREATE NEW LEAD")
+    print(values)
