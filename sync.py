@@ -127,5 +127,40 @@ if items:
 
 else:
 
-    print("WOULD CREATE NEW LEAD")
-    print(values)
+    mutation = """
+    mutation (
+      $board_id: ID!,
+      $group_id: String!,
+      $item_name: String!,
+      $column_values: JSON!
+    ) {
+      create_item(
+        board_id: $board_id,
+        group_id: $group_id,
+        item_name: $item_name,
+        column_values: $column_values
+      ) {
+        id
+      }
+    }
+    """
+
+    create_response = requests.post(
+        "https://api.monday.com/v2",
+        headers={
+            "Authorization": MONDAY_API_TOKEN,
+            "Content-Type": "application/json"
+        },
+        json={
+            "query": mutation,
+            "variables": {
+                "board_id": BOARD_ID,
+                "group_id": GROUP_ID,
+                "item_name": name,
+                "column_values": json.dumps(values)
+            }
+        }
+    )
+
+    print("CREATED")
+    print(create_response.text)
