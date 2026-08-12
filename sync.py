@@ -10,7 +10,7 @@ response = requests.post(
         "Content-Type": "application/json"
     },
     json={
-        "q_keywords": "Dave Stewart",
+        "q_keywords": "Julie Durose",
         "page": 1,
         "per_page": 1
     }
