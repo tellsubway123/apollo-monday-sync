@@ -1,50 +1,29 @@
 import os
-import json
 import requests
 
-APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
+MONDAY_API_TOKEN = os.environ["MONDAY_API_TOKEN"]
 
-PROCESSED_FILE = "processed_contacts.json"
-
-with open(PROCESSED_FILE, "r") as f:
-    processed_contacts = json.load(f)
+query = """
+query {
+  boards(ids: 18395580962) {
+    columns {
+      id
+      title
+      type
+    }
+  }
+}
+"""
 
 response = requests.post(
-    "https://api.apollo.io/api/v1/contacts/search",
+    "https://api.monday.com/v2",
     headers={
-        "X-Api-Key": APOLLO_API_KEY,
+        "Authorization": MONDAY_API_TOKEN,
         "Content-Type": "application/json"
     },
     json={
-        "owner_ids": ["6a171a990217cf001039ff2a"],
-        "page": 1,
-        "per_page": 20
+        "query": query
     }
 )
 
-contacts = response.json().get("contacts", [])
-
-new_count = 0
-
-for contact in contacts:
-
-    contact_id = contact.get("id")
-    name = contact.get("name")
-
-    if contact_id in processed_contacts:
-
-        print("SKIP |", name)
-
-    else:
-
-        print("NEW  |", name)
-
-        processed_contacts.append(contact_id)
-        new_count += 1
-
-with open(PROCESSED_FILE, "w") as f:
-    json.dump(processed_contacts, f, indent=2)
-
-print()
-print("NEW CONTACTS:", new_count)
-print("TOTAL IDS:", len(processed_contacts))
+print(response.text)
