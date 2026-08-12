@@ -1,20 +1,14 @@
 import os
-import json
 import requests
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 
-response = requests.post(
-    "https://api.apollo.io/api/v1/contacts/search",
+response = requests.get(
+    "https://api.apollo.io/api/v1/emailer_campaigns",
     headers={
-        "X-Api-Key": APOLLO_API_KEY,
-        "Content-Type": "application/json"
-    },
-    json={
-        "added_by_user_ids": ["6a171a990217cf001039ff2a"],
-        "page": 1,
-        "per_page": 20
+        "X-Api-Key": APOLLO_API_KEY
     }
 )
 
-print(json.dumps(response.json(), indent=2)[:5000])
+print(response.status_code)
+print(response.text[:5000])
