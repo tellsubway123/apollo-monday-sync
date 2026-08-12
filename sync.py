@@ -1,28 +1,22 @@
 import os
-import json
 import requests
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 
-response = requests.post(
-    "https://api.apollo.io/api/v1/contacts/search",
-    headers={
-        "X-Api-Key": APOLLO_API_KEY,
-        "Content-Type": "application/json"
-    },
-    json={
-        "emailer_campaign_ids": [
-            "6a60cc79d0d4430020e6e356",
-            "6a60cd15302179001cdd84e4"
-        ],
-        "page": 1,
-        "per_page": 100
-    }
-)
+for endpoint in [
+    "https://api.apollo.io/api/v1/sequences",
+    "https://api.apollo.io/api/v1/emailer_campaigns/search",
+    "https://api.apollo.io/api/v1/emailer_campaigns/searches"
+]:
+    try:
+        response = requests.get(
+            endpoint,
+            headers={"X-Api-Key": APOLLO_API_KEY}
+        )
 
-data = response.json()
-
-print("CONTACT COUNT:", len(data.get("contacts", [])))
-
-for contact in data.get("contacts", []):
-    print(contact.get("name"))
+        print()
+        print("ENDPOINT:", endpoint)
+        print("STATUS:", response.status_code)
+        print(response.text[:500])
+    except Exception as e:
+        print(endpoint, str(e))
