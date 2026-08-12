@@ -11,7 +11,7 @@ response = requests.post(
         "Content-Type": "application/json"
     },
     json={
-        "emailer_campaign_ids": ["6a60cc79d0d4430020e6e356"],
+        "added_by["APOLLO_API_KEY"_user_ids": 01039ff2a"],
         "page": 1,
         "per_page": 20
     }
