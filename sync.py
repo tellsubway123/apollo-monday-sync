@@ -3,9 +3,14 @@ import json
 import requests
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
+MONDAY_API_TOKEN = os.environ["MONDAY_API_TOKEN"]
 
 PROCESSED_FILE = "processed_contacts.json"
 MAX_NEW_CONTACTS = 10
+
+BOARD_ID = 18395580962
+GROUP_ID = "group_mm582fdj"
+OWNER_ID = 103624857
 
 with open(PROCESSED_FILE, "r") as f:
     processed_contacts = json.load(f)
@@ -79,19 +84,59 @@ for contact in new_contacts:
         break
 
     contact_id = contact.get("id")
-    name = contact.get("name")
-    email = contact.get("email")
+    name = contact.get("name", "")
+    email = contact.get("email", "")
+    title = contact.get("title", "")
+    company = contact.get("organization_name", "")
+    phone = contact.get("sanitized_phone", "")
 
     print("PROCESS:", name, "|", email)
 
-    processed_contacts.append(contact_id)
-    processed_set.add(contact_id)
+    if not email:
 
-    processed_this_run += 1
+        print("SKIP NO EMAIL:", name)
 
-with open(PROCESSED_FILE, "w") as f:
-    json.dump(processed_contacts, f, indent=2)
+        processed_contacts.append(contact_id)
+        processed_set.add(contact_id)
 
-print()
-print("PROCESSED THIS RUN:", processed_this_run)
-print("TOTAL STORED IDS:", len(processed_contacts))
+        processed_this_run += 1
+        continue
+
+    search_query = f"""
+    query {{
+      boards(ids: [{BOARD_ID}]) {{
+        items_page(
+          limit: 10
+          query_params: {{
+            rules: [{{
+              column_id: "email_mm47srsd"
+              compare_value: ["{email}"]
+            }}]
+          }}
+        ) {{
+          items {{
+            id
+          }}
+        }}
+      }}
+    }}
+    """
+
+    search_response = requests.post(
+        "https://api.monday.com/v2",
+        headers={
+            "Authorization": MONDAY_API_TOKEN,
+            "Content-Type": "application/json"
+        },
+        json={
+            "query": search_query
+        }
+    )
+
+    items = (
+        search_response.json()["data"]["boards"][0]
+        ["items_page"]["items"]
+    )
+
+    values = {
+        "text_mkzmfmqb": title,
