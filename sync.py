@@ -10,20 +10,17 @@ response = requests.post(
         "Content-Type": "application/json"
     },
     json={
+        "q_keywords": "Dave Stewart",
         "page": 1,
-        "per_page": 20
+        "per_page": 1
     }
 )
 
-contacts = response.json().get("contacts", [])
+contact = response.json()["contacts"][0]
 
-for contact in contacts:
+print("NAME:", contact.get("name"))
 
-    statuses = contact.get("contact_campaign_statuses", [])
-
-    if statuses:
-
-        print(contact.get("name"))
-        print("ADDED BY:", statuses[0].get("added_by_user_id"))
-        print("ADDED AT:", statuses[0].get("added_at"))
-        print("---")
+for status in contact.get("contact_campaign_statuses", []):
+    print("ADDED BY:", status.get("added_by_user_id"))
+    print("ADDED AT:", status.get("added_at"))
+    print("CAMPAIGN:", status.get("emailer_campaign_id"))
