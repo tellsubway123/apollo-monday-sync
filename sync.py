@@ -11,10 +11,10 @@ response = requests.post(
         "Content-Type": "application/json"
     },
     json={
-        "q_keywords": "Dave Stewart",
+        "creator_ids": ["6a171a990217cf001039ff2a"],
         "page": 1,
-        "per_page": 10
+        "per_page": 20
     }
 )
 
-print(json.dumps(response.json(), indent=2)[:15000])
+print(json.dumps(response.json(), indent=2)["6a171a990217cf001039ff2a20
