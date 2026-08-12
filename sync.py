@@ -11,7 +11,7 @@ response = requests.post(
         "Content-Type": "application/json"
     },
     json={
-        "added_by["APOLLO_API_KEY"_user_ids": 01039ff2a"],
+        "added_by_user_ids": ["6a171a990217cf001039ff2a"],
         "page": 1,
         "per_page": 20
     }
