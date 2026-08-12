@@ -1,9 +1,17 @@
 import os
+import json
 import requests
 
 APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 
-# Get all campaigns
+PROCESSED_FILE = "processed_contacts.json"
+MAX_NEW_CONTACTS = 10
+
+with open(PROCESSED_FILE, "r") as f:
+    processed_contacts = json.load(f)
+
+processed_set = set(processed_contacts)
+
 campaign_response = requests.get(
     "https://api.apollo.io/api/v1/emailer_campaigns/search",
     headers={
@@ -13,16 +21,14 @@ campaign_response = requests.get(
 
 campaigns = campaign_response.json().get("emailer_campaigns", [])
 
-print("TOTAL CAMPAIGNS:", len(campaigns))
+print("CAMPAIGNS FOUND:", len(campaigns))
 
-unique_contact_ids = set()
+unique_contacts = {}
+new_contacts = []
 
 for campaign in campaigns:
 
     campaign_id = campaign["id"]
-    campaign_name = campaign.get("name", campaign_id)
-
-    campaign_count = 0
     page = 1
 
     while True:
@@ -42,19 +48,50 @@ for campaign in campaigns:
 
         contacts = response.json().get("contacts", [])
 
-        count = len(contacts)
-
-        if count == 0:
+        if len(contacts) == 0:
             break
 
-        campaign_count += count
-
         for contact in contacts:
-            unique_contact_ids.add(contact.get("id"))
+
+            contact_id = contact.get("id")
+
+            if contact_id:
+                unique_contacts[contact_id] = contact
 
         page += 1
 
-    print(f"{campaign_name} -> {campaign_count}")
+print("UNIQUE CONTACTS FOUND:", len(unique_contacts))
+
+for contact_id, contact in unique_contacts.items():
+
+    if contact_id in processed_set:
+        continue
+
+    new_contacts.append(contact)
+
+print("UNPROCESSED CONTACTS:", len(new_contacts))
+
+processed_this_run = 0
+
+for contact in new_contacts:
+
+    if processed_this_run >= MAX_NEW_CONTACTS:
+        break
+
+    contact_id = contact.get("id")
+    name = contact.get("name")
+    email = contact.get("email")
+
+    print("PROCESS:", name, "|", email)
+
+    processed_contacts.append(contact_id)
+    processed_set.add(contact_id)
+
+    processed_this_run += 1
+
+with open(PROCESSED_FILE, "w") as f:
+    json.dump(processed_contacts, f, indent=2)
 
 print()
-print("TOTAL UNIQUE CONTACT IDS:", len(unique_contact_ids))
+print("PROCESSED THIS RUN:", processed_this_run)
+print("TOTAL STORED IDS:", len(processed_contacts))
