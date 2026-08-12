@@ -5,7 +5,7 @@ APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 
 CAMPAIGN_ID = "67b5c2b49d091d0011b11e06"
 
-for page in [1, 2, 3]:
+for page in range(1, 11):
 
     response = requests.post(
         "https://api.apollo.io/api/v1/contacts/search",
