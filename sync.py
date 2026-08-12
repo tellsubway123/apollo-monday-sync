@@ -11,15 +11,10 @@ response = requests.post(
         "Content-Type": "application/json"
     },
     json={
-        "q_keywords": "Dave Stewart",
+        "emailer_campaign_ids": ["6a60cc79d0d4430020e6e356"],
         "page": 1,
-        "per_page": 1
+        "per_page": 20
     }
 )
 
-contact = response.json()["contacts"][0]
-
-print(json.dumps(
-    contact.get("contact_campaign_statuses", []),
-    indent=2
-))
+print(json.dumps(response.json(), indent=2)[:5000])
