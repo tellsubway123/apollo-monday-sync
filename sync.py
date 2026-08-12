@@ -6,7 +6,7 @@ APOLLO_API_KEY = os.environ["APOLLO_API_KEY"]
 MONDAY_API_TOKEN = os.environ["MONDAY_API_TOKEN"]
 
 PROCESSED_FILE = "processed_contacts.json"
-MAX_NEW_CONTACTS = 25
+MAX_NEW_CONTACTS = 100
 
 BOARD_ID = 18395580962
 GROUP_ID = "group_mm582fdj"
